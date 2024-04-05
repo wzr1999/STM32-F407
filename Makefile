@@ -36,10 +36,11 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-Core/Src/main.c \
-Core/Src/key.c \
-Core/Src/usart.c \
-Core/Src/Exit.c \
+Core/Src/main.cpp \
+Core/Src/key.cpp \
+Core/Src/usart.cpp \
+Core/Src/Exit.cpp \
+Core/Src/Led.cpp   \
 Core/Src/stm32f4xx_it.c \
 Core/Src/stm32f4xx_hal_msp.c \
 Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
