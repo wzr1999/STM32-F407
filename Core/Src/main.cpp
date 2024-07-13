@@ -1,7 +1,7 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file           : main.c
+  * @file           : main.cpp
   * @brief          : Main program body
   ******************************************************************************
   * @attention
@@ -20,23 +20,14 @@
 #include "key.h"
 #include "led.h"
 #include "lcd_spi_200.h"
+#include "cmsis_os.h"
+#include "wwdg.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+ extern uint8_t rxbuf[16];
+ extern UART_HandleTypeDef huart1;
 /* USER CODE END Includes */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-#define LED_GPIO_Port GPIOC 
-#define LOW   false   
-#define LED_Pin  GPIO_PIN_13  
-/* USER CODE END PD */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-LED_t LED((GPIO_TypeDef *)LED_GPIO_Port,(uint16_t)LED_Pin,(Effective_Level)LOW);
-/* USER CODE END PTD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
@@ -44,14 +35,12 @@ LED_t LED((GPIO_TypeDef *)LED_GPIO_Port,(uint16_t)LED_Pin,(Effective_Level)LOW);
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 GPIO_InitTypeDef  *GPIO_InitStructC;
 // SPI_HandleTypeDef hspi3;
 // SD_HandleTypeDef hsd;
  uint32_t flag = 0;//自定义中断标识符�??1?7?
- uint8_t rxbuf[16] = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -64,7 +53,7 @@ void 	LCD_Test_Clear(void);			// 清屏测试
 void 	LCD_Test_Image(void);			// 图片显示
 void  LCD_Test_Direction(void);	   // 更换显示方向
 /* USER CODE BEGIN PFP */
-
+void MX_FREERTOS_Init(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -111,10 +100,20 @@ int main(void)
   MX_USART1_UART_Init();
   SPI_LCD_Init();	// SPI LCD屏幕初始化
   /* USER CODE BEGIN 2 */
+  MX_WWDG_Init();
   
   printf_str((uint8_t *)"STM32 USART Test.\r\n");
 	printf_str((uint8_t *)"printf Function Test.\r\n");	
   /* USER CODE END 2 */
+
+    /* Init scheduler */
+  osKernelInitialize();  /* Call init function for freertos objects (in freertos.c) */
+  MX_FREERTOS_Init();
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -123,11 +122,11 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_UART_Receive_IT(&huart1,rxbuf,10);
-    LED.Toggle();
-    HAL_Delay(1000);    
-    LCD_Clear();		// 清屏(); 
-		LCD_Test_Image();			// 图片显示
+    // HAL_UART_Receive_IT(&huart1,rxbuf,10);
+    // LED.Toggle();
+    // HAL_Delay(1000);    
+    // LCD_Clear();		// 清屏(); 
+		// LCD_Test_Image();			// 图片显示
 		//LCD_Test_Direction();	// 更换显示方向	         	
   }
   /* USER CODE END 3 */
